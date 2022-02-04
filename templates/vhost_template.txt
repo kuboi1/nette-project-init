@@ -1,0 +1,10 @@
+#
+<VirtualHost *:80>
+	ServerName [host_name]
+	DocumentRoot "[project_path]"
+	<Directory  "[project_path]/">
+		Options +Indexes +Includes +FollowSymLinks +MultiViews
+		AllowOverride All
+		Require local
+	</Directory>
+</VirtualHost>

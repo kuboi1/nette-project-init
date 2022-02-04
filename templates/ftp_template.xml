@@ -1,0 +1,16 @@
+		<Server>
+	    		<Host>[host_url]</Host>
+    			<Port>21</Port>
+    			<Protocol>0</Protocol>
+    			<Type>0</Type>
+	    		<User>[username]</User>
+    			<Pass encoding="base64">[password]</Pass>
+    			<Logontype>1</Logontype>
+    			<PasvMode>MODE_DEFAULT</PasvMode>
+	    		<EncodingType>Auto</EncodingType>
+    			<BypassProxy>0</BypassProxy>
+    			<Name>[connection_name]</Name>
+    			<LocalDir>[local_dir_path]</LocalDir>
+	    		<SyncBrowsing>0</SyncBrowsing>
+    			<DirectoryComparison>0</DirectoryComparison>
+		</Server>
