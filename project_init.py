@@ -89,15 +89,13 @@ class LocalConfiger:
             '    user: root\n',
             '    password: \n'
         ]
-        f = open(trgt, 'w')
-        f.writelines(db_lines)
-        f.close()
+        with open(trgt, 'w') as f:
+            f.writelines(db_lines)
         self.created_files += 1
 
 
 class UI:
     def __init__(self):
-        self.file = open('conf.pkl', 'rb')
         self.conf_dict = {}
 
         self.conf_prompts = {
@@ -154,12 +152,13 @@ class UI:
             self.conf_dict = conf_dict
             return
         
-        try:
-            conf_dict = pickle.load(self.file)
-        except:
-            print('Error: Pickle file not readable, loading default configs...')
-        
         self.conf_dict = conf_dict
+
+        if os.path.exists('conf.pkl'):
+            with open('conf.pkl', 'rb') as f:
+                self.conf_dict = pickle.load(self.file)
+        else:
+            self.save_configs()
 
     def get_configs(self):
         for config in self.conf_dict:
@@ -199,13 +198,11 @@ class UI:
         return True
 
     def save_configs(self):
-        self.file.close()
-        file = open('conf.pkl', 'wb')
-        configs = dict(self.conf_dict)
-        # Clear ftp password for security reasons
-        configs['ftp_password'] = ''
-        pickle.dump(configs, file)
-        file.close()
+        with open('conf.pkl', 'wb') as f:
+            configs = dict(self.conf_dict)
+            # Clear ftp password for security reasons
+            configs['ftp_password'] = ''
+            pickle.dump(configs, f)
     
     def is_github_link(self, user_input):
         return bool(re.match(r'https:\/\/github.com\/visualio\/[^\/]+\/?', user_input))
@@ -270,12 +267,13 @@ class ProjectInitializer:
     
     def create_env_file(self):
         print('Creating .env file...')
-        env_file = open(self.conf['project_path'] + '\\.env', 'w')
-        env_file.write(f'HOST="' + self.conf['host'] + '"')
+        with open(self.conf['project_path'] + '\\.env', 'w') as env_file:
+            env_file.write(f'HOST="' + self.conf['host'] + '"')
         print('.env file created.')
     
     def create_vhosts_entry(self, host):
-        template_lines = open('templates\\vhost_template.txt', 'r').readlines()
+        with open('templates\\vhost_template.txt', 'r') as f:
+            template_lines = f.readlines()
         try:
             f = open('C:\\wamp64\\bin\\apache\\apache2.4.51\\conf\\extra\\httpd-vhosts.conf', 'a')
         except FileNotFoundError:
@@ -288,6 +286,7 @@ class ProjectInitializer:
                 template_lines[template_lines.index(line)] = line.replace('[project_path]', os.path.abspath(self.conf['project_path']).replace('\\', '/'))
         f.write('\n')
         f.writelines(template_lines)
+        f.close()
         print('Created a vhost entry.')
         print()
     
@@ -299,15 +298,15 @@ class ProjectInitializer:
             print('Error: Access to hosts file denied. Please restart the script with admin permissions if you want to create a vhost.')
             return
         f.writelines(lines)
+        f.close()
         print('Created host entry.')
         print()
 
     def create_ftp_connection(self):
         print('Setting up FileZilla FTP connection...')
         
-        f = open('templates\\ftp_template.xml', 'r')
-        template_lines = f.readlines()
-        f.close()
+        with open('templates\\ftp_template.xml', 'r') as f:
+            template_lines = f.readlines()
         variables = {
             '[host_url]' : self.conf['ftp_host'], 
             '[username]' : self.conf['ftp_username'], 
@@ -357,6 +356,7 @@ class ProjectInitializer:
         for i, line in enumerate(write_lines, start=start_index):
             read_lines.insert(i, line)
         f.writelines(read_lines)
+        f.close()
         
 
 
