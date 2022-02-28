@@ -156,7 +156,7 @@ class UI:
 
         if os.path.exists('conf.pkl'):
             with open('conf.pkl', 'rb') as f:
-                self.conf_dict = pickle.load(self.file)
+                self.conf_dict = pickle.load(f)
         else:
             self.save_configs()
 
