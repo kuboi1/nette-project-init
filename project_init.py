@@ -366,7 +366,7 @@ if __name__ == '__main__':
 
     ui = UI()
     ui.print_intro()
-    ui.load_configs(force_default=True)
+    ui.load_configs(force_default=False)
     conf = ui.get_configs()
     ui.save_configs()
     print()
