@@ -106,7 +106,7 @@ class UI:
             'local_configs' : 'Create local config.neon files?',
             'db_name' : 'Name of your local database',
             'env_file' : 'Create .env file?',
-            'create_vhost' : 'Create a virtual host? (admin permissions required)',
+            'create_vhost' : 'Create a virtual host?',
             'host' : 'Host url for vhost and .env file',
             'ftp_connection' : 'Setup a FileZilla FTP connection?',
             'path_local_dir' : 'Local directory for FileZilla same as project directory?',
@@ -357,7 +357,7 @@ class ProjectInitializer:
             read_lines.insert(i, line)
         f.writelines(read_lines)
         f.close()
-        
+
 
 
 if __name__ == '__main__':
@@ -375,6 +375,9 @@ if __name__ == '__main__':
     initializer.initialize_project()
 
     os.chdir(ORIGINAL_CWD)
+
+    print('\nDon\'t forget to restart all services on Wamp!\n')
+    input('Press enter to exit...')
 
 
     
