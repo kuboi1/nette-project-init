@@ -110,9 +110,8 @@ class UI:
             'project_path' : 'Path to the main project directory',
             'local_configs' : 'Create local config.neon files?',
             'db_name' : 'Name of your local database',
-            'env_file' : 'Create .env file?',
             'create_vhost' : 'Create a virtual host?',
-            'host' : 'Host url for vhost and .env file',
+            'host' : 'Host url for vhost',
             'ftp_connection' : 'Setup a FileZilla FTP connection?',
             'path_local_dir' : 'Local directory for FileZilla same as project directory?',
             'ftp_local_dir' : 'Local directory for FileZilla',
@@ -140,7 +139,6 @@ class UI:
             'project_path' : '..\\projects\\accolade-web-2020',
             'local_configs' : True,
             'db_name' : 'accoladeeu',
-            'env_file' : True,
             'create_vhost' : False,
             'host' : 'http://accolade-web.local',
             'ftp_connection' : True,
@@ -195,7 +193,7 @@ class UI:
             case 'projects_f_path' : return conf_dict['clone_repo']
             case 'project_path' : return not conf_dict['clone_repo']
             case 'db_name' : return conf_dict['local_configs']
-            case 'host' : return conf_dict['env_file'] or conf_dict['create_vhost']
+            case 'host' : return conf_dict['create_vhost']
             case 'path_local_dir' : return conf_dict['ftp_connection']
             case 'ftp_local_dir' : return conf_dict['ftp_connection'] and not conf_dict['path_local_dir']
             case 'ftp_name' : return conf_dict['ftp_connection']
@@ -239,9 +237,6 @@ class ProjectInitializer:
             local_configer = LocalConfiger(conf['project_path'], conf['db_name'])
             local_configer.create_configs()
             print()
-        if conf['env_file']:
-            self.create_env_file()
-            print()
         if conf['create_vhost']:
             host = self.conf['host'].split('/')[-1]
             self.create_vhosts_entry(host)
@@ -281,12 +276,6 @@ class ProjectInitializer:
     
     def has_package_json(self):
         return 'package.json' in os.listdir(self.conf['project_path'])
-    
-    def create_env_file(self):
-        print('Creating .env file...')
-        with open(self.conf['project_path'] + '\\.env', 'w') as env_file:
-            env_file.write(f'HOST="' + self.conf['host'] + '"')
-        print('.env file created.')
     
     def create_vhosts_entry(self, host):
         with open('templates\\vhost_template.txt', 'r') as f:
