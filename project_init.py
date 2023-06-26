@@ -5,6 +5,8 @@ import pickle
 import base64
 import re
 
+from settings import Settings
+
 
 # LocalConfiger class creates local config neon files in the projects app\config folder
 class LocalConfiger:
@@ -209,8 +211,9 @@ class UI:
 
 
 class ProjectInitializer:
-    def __init__(self, conf):
+    def __init__(self, conf, settings):
         self.conf = conf
+        self.settings = settings
 
         if conf['clone_repo']:
             conf['project_path'] = conf['projects_f_path'] + '\\' + conf['repo_link'].split('/')[-1]
@@ -275,9 +278,9 @@ class ProjectInitializer:
         with open('templates\\vhost_template.txt', 'r') as f:
             template_lines = f.readlines()
         try:
-            f = open('C:\\wamp64\\bin\\apache\\apache2.4.51\\conf\\extra\\httpd-vhosts.conf', 'a')
+            f = open(f'C:\\wamp64\\bin\\apache\\apache{self.settings["apache_version"]}\\conf\\extra\\httpd-vhosts.conf', 'a')
         except FileNotFoundError:
-            print('Error: No vhost file found at: C:/wamp64/bin/apache/apache2.4.51/conf/extra/httpd-vhosts.conf')
+            print(f'Error: No vhost file found at: C:/wamp64/bin/apache/apache{self.settings["apache_version"]}/conf/extra/httpd-vhosts.conf')
             return
         for line in template_lines:
             if '[host_name]' in line:
@@ -371,7 +374,10 @@ if __name__ == '__main__':
     ui.save_configs()
     print()
 
-    initializer = ProjectInitializer(conf)
+    settings = Settings()
+    settings.load_settings()
+
+    initializer = ProjectInitializer(conf, settings.get_settings())
     initializer.initialize_project()
 
     os.chdir(ORIGINAL_CWD)
