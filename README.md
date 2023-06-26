@@ -1,4 +1,4 @@
-# Nette Project Starter
+# Nette Project Quick Start
 
 An open-source Python console program for quick-starting projects made using the Nette PHP library
 
