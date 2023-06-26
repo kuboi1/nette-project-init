@@ -121,7 +121,8 @@ class UI:
             'ftp_username' : 'FTP username',
             'ftp_password' : 'FTP password',
             'composer' : 'Run \'composer install\'?',
-            'npm' : 'Run \'npm install\'?'
+            'npm' : 'Run \'npm install\'?',
+            'build' : 'Run build scripts?'
         }
 
     def print_intro(self):
@@ -150,7 +151,8 @@ class UI:
             'ftp_username' : 'accoladeeu1',
             'ftp_password' : '',
             'composer' : True,
-            'npm' : True
+            'npm' : True,
+            'build' : True
         }
 
         if force_default:
@@ -250,6 +252,8 @@ class ProjectInitializer:
             self.install_dependencies('composer')
         if conf['npm']:
             self.install_dependencies('npm')
+        if conf['build']:
+            self.run_build_scripts()
         
         print('Project ' + self.conf['project_path'].split('\\')[-1] + ' was initialized.')
     
@@ -260,6 +264,13 @@ class ProjectInitializer:
         print(f'Running {type} install...')
         self.run_cmd(self.conf['project_path'], [type, 'i'])
         print(f'Finished running {type} install.')
+        print()
+    
+    def run_build_scripts(self):
+        print('Running build scripts...')
+        self.run_cmd(self.conf['project_path'], ['npm', 'run', 'build'])
+        self.run_cmd(self.conf['project_path'], ['npm', 'run', 'build:admin'])
+        print('Finished running build scripts.')
         print()
     
     def run_cmd(self, trgt, comm):
@@ -366,7 +377,8 @@ class ProjectInitializer:
 
 
 if __name__ == '__main__':
-    print(os.path.join(os.getcwd(), '..\\projects'))
+    ORIGINAL_CWD = os.getcwd()
+    os.chdir(os.path.join(os.path.dirname(__file__), '..\\'))
 
     ui = UI()
     ui.print_intro()
@@ -380,6 +392,8 @@ if __name__ == '__main__':
 
     initializer = ProjectInitializer(conf, settings.get_settings())
     initializer.initialize_project()
+
+    os.chdir(ORIGINAL_CWD)
 
     print('\nDon\'t forget to restart all services on Wamp!\n')
     input('Press enter to exit...')
