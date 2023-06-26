@@ -8,6 +8,9 @@ import re
 from settings import Settings
 
 
+CONF_PATH = 'data\\conf.pkl'
+
+
 # LocalConfiger class creates local config neon files in the projects app\config folder
 class LocalConfiger:
     def __init__(self, project_path, db_name):
@@ -156,8 +159,8 @@ class UI:
         
         self.conf_dict = conf_dict
 
-        if os.path.exists('conf.pkl'):
-            with open('conf.pkl', 'rb') as f:
+        if os.path.exists(CONF_PATH):
+            with open(CONF_PATH, 'rb') as f:
                 self.conf_dict = pickle.load(f)
         else:
             self.save_configs()
@@ -200,7 +203,7 @@ class UI:
         return True
 
     def save_configs(self):
-        with open('conf.pkl', 'wb') as f:
+        with open(CONF_PATH, 'wb') as f:
             configs = dict(self.conf_dict)
             # Clear ftp password for security reasons
             configs['ftp_password'] = ''
@@ -362,10 +365,8 @@ class ProjectInitializer:
         f.close()
 
 
-
 if __name__ == '__main__':
-    ORIGINAL_CWD = os.getcwd()
-    os.chdir(os.path.dirname(__file__))
+    print(os.path.join(os.getcwd(), '..\\projects'))
 
     ui = UI()
     ui.print_intro()
@@ -379,8 +380,6 @@ if __name__ == '__main__':
 
     initializer = ProjectInitializer(conf, settings.get_settings())
     initializer.initialize_project()
-
-    os.chdir(ORIGINAL_CWD)
 
     print('\nDon\'t forget to restart all services on Wamp!\n')
     input('Press enter to exit...')

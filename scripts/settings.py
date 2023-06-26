@@ -1,8 +1,11 @@
 import os
 import pickle
 
-# Used for setting up versions and such
 
+SETTINGS_PATH = 'data\\settings.pkl'
+
+
+# Used for setting up versions and such
 class Settings:
     def __init__(self) -> None:
         self.settings_dict = {}
@@ -31,14 +34,14 @@ class Settings:
             
             self.settings_dict = settings_dict
 
-            if os.path.exists('settings.pkl'):
-                with open('settings.pkl', 'rb') as f:
+            if os.path.exists(SETTINGS_PATH):
+                with open(SETTINGS_PATH, 'rb') as f:
                     self.settings_dict = pickle.load(f)
             else:
                 self.save_settings()
     
     def save_settings(self) -> None:
-        with open('settings.pkl', 'wb') as f:
+        with open(SETTINGS_PATH, 'wb') as f:
             settings = dict(self.settings_dict)
             pickle.dump(settings, f)
     
