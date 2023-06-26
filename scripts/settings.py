@@ -1,23 +1,31 @@
 import os
 import pickle
 
+from translator import Translator
+
 
 SETTINGS_PATH = 'data\\settings.pkl'
+
+LOCALE_LIST = ['en', 'cs']
 
 
 # Used for setting up versions and such
 class Settings:
-    def __init__(self) -> None:
+    def __init__(self, translator: Translator) -> None:
+        self.translator = translator
         self.settings_dict = {}
-
-        self.prompts = {
-            'apache_version': 'Apache version that your wamp is currently using'
-        }
     
     def setup(self) -> dict:
         for setting in self.settings_dict:
             current_value = self.settings_dict[setting]
-            user_input = input(f'{self.prompts[setting]} [{current_value}]: ')
+            user_input = input(
+                f'{self.translator.translate(f"prompt.{setting}", self.get_prompt_params(setting))} [{current_value}]: '
+            )
+            while not self.special_check(setting, user_input):
+                self.print_translate('error.invalid_value')
+                user_input = input(
+                    f'{self.translator.translate(f"prompt.{setting}", self.get_prompt_params(setting))} [{current_value}]: '
+                )
             if user_input == '':
                 continue
             self.settings_dict[setting] = user_input
@@ -25,6 +33,7 @@ class Settings:
 
     def load_settings(self, force_default=False) -> None:
             settings_dict = {
+                'locale': 'en',
                 'apache_version': '2.4.51'
             }
 
@@ -47,19 +56,55 @@ class Settings:
     
     def get_settings(self) -> dict:
         return self.settings_dict
+
+    def special_check(self, setting: str, input: str) -> bool:
+        if input == '':
+            return True
+        
+        match setting:
+            case 'locale': return input in LOCALE_LIST
+        return True
     
-    def print_intro(self):
-        print('Visu Project Initiator - Settings')
-        print('- additional one time settings that don\'t need to be included in the main program')
-        print('- you can press enter with no input to confirm current settings (in square brackets)')
+    def print_intro(self) -> None:
         print()
+        self.print_translate('title')
+        self.print_translate('intro.1')
+        self.print_translate('intro.2')
+        print()
+
+    def get_prompt_params(self, setting: str) -> dict:
+        match setting:
+            case 'locale': return {'locale_list': '/'.join(LOCALE_LIST)}
+        return {}
+    
+    def print_translate(self, key: str, params={}) -> None:
+        print(self.translator.translate(key, params))
 
 
 if __name__ == '__main__':
-    ui = Settings()
-    ui.load_settings()
-    ui.setup()
-    ui.save_settings()
+    ORIGINAL_CWD = os.getcwd()
+    os.chdir(os.path.join(os.path.dirname(__file__), '..\\'))
 
-    print('\nSettigs saved successfully')
-    input('Press enter to exit...')
+    print(os.getcwd())
+
+    translator = Translator()
+
+    if not translator.lang_file_exists():
+        print('Fatal: lang.json file not found in data directory.')
+        exit()
+
+    settings = Settings(translator)
+
+    settings.load_settings()
+    settings_dict = settings.get_settings()
+
+    translator.load_lang(main_key='settings', locale=settings_dict['locale'])
+
+    settings.print_intro()
+    settings.setup()
+    settings.save_settings()
+
+    os.chdir(ORIGINAL_CWD)
+
+    print(translator.translate('finished.message'))
+    input(translator.translate('finished.cta'))

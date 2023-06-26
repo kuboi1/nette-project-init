@@ -1,1 +1,1 @@
-python settings.py
+python scripts/settings.py

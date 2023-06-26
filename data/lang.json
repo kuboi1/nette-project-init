@@ -1,0 +1,49 @@
+{
+    "project_init" : {
+        "en" : {
+            "title" : "Nette Project Quick Start",
+            "intro" : "- configure everything below to get started\n- input y/n for booleans and strings for paths etc.\n- you can press enter with no input to confirm current settings (in square brackets)\n"
+        },
+        "cs" : {
+
+        }
+    },
+    "settings" : {
+        "en" : {
+            "title" : "Nette Project Quick Start - Settings",
+            "intro" : {
+                "1" : "- additional one time settings that don't need to be included in the main program",
+                "2" : "- you can press enter with no input to confirm current settings (in square brackets)"
+            },
+            "finished" : {
+                "message" : "Settings saved successfully.",
+                "cta" : "Press enter to exit..."
+            },
+            "prompt" : {
+                "locale" : "Language (%locale_list%)",
+                "apache_version" : "Apache version that your Wampserver is currently using"
+            },
+            "error" : {
+                "invalid_value" : "Invalid value."
+            }
+        },
+        "cs" : {
+            "title" : "Nette Project Quick Start - Nastavení",
+            "intro" : {
+                "1" : "- dlouhodobá nastavení, která nemusí být zahrnuta v hlavním programu",
+                "2" : "- můžeš stisknout enter bez napsání inputu pro potvrzení stávajícího nastavení (v hranatých závorkách)"
+            },
+            "finished" : {
+                "message" : "Nastavení úspěšně uloženo.",
+                "cta" : "Stiskni enter pro ukončení..."
+            },
+            "prompt" : {
+                "locale" : "Jazyk (%locale_list%)",
+                "apache_version" : "Verze Apache kterou momentálně používá tvůj Wampserver"
+            },
+            "error" : {
+                "invalid_value" : "Nesprávná hodnota."
+            }
+        }
+    }
+}
