@@ -1,6 +1,7 @@
 import os
 
 from ui import UI
+from translator import Translator
 from settings import Settings
 from project_init import ProjectQuickStarter
 from config_manager import ConfigManager
@@ -23,7 +24,9 @@ if __name__ == '__main__':
 
     print()
 
-    settings = Settings()
+    translator = Translator()
+
+    settings = Settings(translator=translator)
     settings.load_settings()
 
     quick_starter = ProjectQuickStarter(conf_dict, settings.get_settings())
