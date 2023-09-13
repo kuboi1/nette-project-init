@@ -2,7 +2,7 @@ import os
 import subprocess as sp
 import base64
 
-from local_configer import LocalConfiger
+from project_init.local_configer import LocalConfiger
 
 class ProjectQuickStarter:
     def __init__(self, conf_dict: dict, settings: dict) -> None:

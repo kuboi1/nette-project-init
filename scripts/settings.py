@@ -1,7 +1,7 @@
 import os
 import pickle
 
-from translator import Translator
+from services.translator import Translator
 
 
 SETTINGS_PATH = 'data\\settings.pkl'

@@ -1,11 +1,10 @@
 import os
 
-from ui import UI
-from translator import Translator
+from project_init.ui import UI
+from project_init.project_init import ProjectQuickStarter
+from project_init.config_manager import ConfigManager
+from services.translator import Translator
 from settings import Settings
-from project_init import ProjectQuickStarter
-from config_manager import ConfigManager
-
 
 CONF_PATH = 'data\\conf.pkl'
 
