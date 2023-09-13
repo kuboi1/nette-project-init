@@ -6,7 +6,7 @@ from project_init.config_manager import ConfigManager
 from services.translator import Translator
 from settings import Settings
 
-CONF_PATH = 'data\\conf.pkl'
+CONF_PATH = os.path.abspath('data\\conf.pkl')
 
 
 if __name__ == '__main__':

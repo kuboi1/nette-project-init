@@ -4,7 +4,7 @@ import pickle
 from services.translator import Translator
 
 
-SETTINGS_PATH = 'data\\settings.pkl'
+SETTINGS_PATH = os.path.abspath('data\\settings.pkl')
 
 LOCALE_LIST = ['en', 'cs']
 
