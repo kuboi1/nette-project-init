@@ -2,7 +2,7 @@ import os
 import json
 
 
-LANG_PATH = '..\\data\\lang.json'
+LANG_PATH = '.\\data\\lang.json'
 
 
 class Translator:
