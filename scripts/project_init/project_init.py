@@ -137,7 +137,8 @@ class ProjectQuickStarter:
             if '[host_name]' in line:
                 template_lines[template_lines.index(line)] = line.replace('[host_name]', host)
             if '[project_path]' in line:
-                template_lines[template_lines.index(line)] = line.replace('[project_path]', os.path.abspath(self.conf_dict['project_path']).replace('\\', '/'))
+                path = os.path.join(os.path.abspath(self.conf_dict['project_path']).replace('\\', '/'), 'www')
+                template_lines[template_lines.index(line)] = line.replace('[project_path]', path)
         f.write('\n')
         f.writelines(template_lines)
         f.close()
