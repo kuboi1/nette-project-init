@@ -5,24 +5,30 @@ class UI:
         self.conf_dict = conf_dict
 
         self.conf_prompts = {
-            'clone_repo' : 'Clone project from GitHub repository?',
-            'repo_link' : 'GitHub repository link',
-            'projects_f_path' : 'Path to your projects directory',
-            'project_path' : 'Path to the main project directory',
-            'local_configs' : 'Create local config.neon files?',
-            'db_name' : 'Name of your local database',
-            'create_vhost' : 'Create a virtual host?',
-            'host' : 'Host url for vhost',
-            'ftp_connection' : 'Setup a FileZilla FTP connection?',
-            'path_local_dir' : 'Local directory for FileZilla same as project directory?',
-            'ftp_local_dir' : 'Local directory for FileZilla',
-            'ftp_name' : 'Name of the FTP connection',
-            'ftp_host' : 'FTP host',
-            'ftp_username' : 'FTP username',
-            'ftp_password' : 'FTP password',
-            'composer' : 'Run \'composer install\'?',
-            'npm' : 'Run \'npm install\'?',
-            'build' : 'Run build scripts?'
+            'clone_repo'        : 'Clone project from GitHub repository?',
+            'repo_link'         : 'GitHub repository link',
+            'git_safedir'       : 'Add project as Git safe directory?',
+            'projects_f_path'   : 'Path to your projects directory',
+            'project_path'      : 'Path to the main project directory',
+            'local_configs'     : 'Create local config.neon files?',
+            'db_import'         : 'Create local database and import sql script?',
+            'db_host'           : 'Local database host',
+            'db_user'           : 'Local database user',
+            'db_password'       : 'Local database password',
+            'db_name'           : 'Local database name',
+            'db_file'           : 'Path to sql script you want to import',
+            'create_vhost'      : 'Create a WAMP virtual host?',
+            'host'              : 'Host url for WAMP vhost',
+            'ftp_connection'    : 'Setup a FileZilla FTP connection?',
+            'path_local_dir'    : 'Local directory for FileZilla same as project directory?',
+            'ftp_local_dir'     : 'Local directory for FileZilla',
+            'ftp_name'          : 'Name of the FTP connection',
+            'ftp_host'          : 'FTP host',
+            'ftp_username'      : 'FTP username',
+            'ftp_password'      : 'FTP password',
+            'composer'          : 'Run \'composer install\'?',
+            'npm'               : 'Run \'npm install\'?',
+            'build'             : 'Run build scripts?'
         }
 
     def print_intro(self) -> None:
@@ -57,9 +63,14 @@ class UI:
         conf_dict = self.conf_dict
         match config:
             case 'repo_link' : return conf_dict['clone_repo']
+            case 'git_safedir' : return conf_dict['clone_repo']
             case 'projects_f_path' : return conf_dict['clone_repo']
             case 'project_path' : return not conf_dict['clone_repo']
-            case 'db_name' : return conf_dict['local_configs']
+            case 'db_host' : return conf_dict['db_import']
+            case 'db_user' : return conf_dict['db_import']
+            case 'db_password' : return conf_dict['db_import']
+            case 'db_name' : return conf_dict['local_configs'] or conf_dict['db_import']
+            case 'db_file' : return conf_dict['db_import']
             case 'host' : return conf_dict['create_vhost']
             case 'path_local_dir' : return conf_dict['ftp_connection']
             case 'ftp_local_dir' : return conf_dict['ftp_connection'] and not conf_dict['path_local_dir']

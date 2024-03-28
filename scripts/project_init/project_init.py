@@ -1,7 +1,9 @@
 import os
 import subprocess as sp
 import base64
+import json
 
+from project_init.sql_manager import SqlManager
 from project_init.local_configer import LocalConfiger
 
 class ProjectQuickStarter:
@@ -24,10 +26,18 @@ class ProjectQuickStarter:
                 exit()
             print('Finished cloning GitHub repo.')
             print()
+        if conf['git_safedir']:
+            abs_project_path = os.path.abspath(self.conf_dict['project_path'])
+            print(' '.join(['git', 'config', '--global', '--add', 'safe.directory', abs_project_path]))
+            self.run_cmd('.', ['git', 'config', '--global', '--add', 'safe.directory', abs_project_path])
+            print('Added project as a Git safe directory.')
+            print()
         if conf['local_configs']:
             local_configer = LocalConfiger(conf['project_path'], conf['db_name'])
             local_configer.create_configs()
             print()
+        if conf['db_import']:
+            self.import_database()
         if conf['create_vhost']:
             host = self.conf_dict['host'].split('/')[-1]
             self.create_vhosts_entry(host)
@@ -53,9 +63,27 @@ class ProjectQuickStarter:
         print()
     
     def run_build_scripts(self) -> None:
+        if not self.has_package_json():
+            print(f'CAN\'T RUN BUILD SCRIPTS -> no package.json found')
+            return
+        
+        with open(os.path.join(self.conf_dict['project_path'], 'package.json'), 'r') as pf:
+            package_json: dict = json.load(pf)
+
+        if not 'scripts' in package_json:
+            print(f'CAN\'T RUN BUILD SCRIPTS -> no scripts found in package.json')
+            return
+        
+        build_scripts = [script for script in package_json['scripts'].keys() if script.startswith("build")]
+
+        if len(build_scripts) == 0:
+            print(f'CAN\'T RUN BUILD SCRIPTS -> no build scripts found in package.json')
+            return
+
         print('Running build scripts...')
-        self.run_cmd(self.conf_dict['project_path'], ['npm', 'run', 'build'])
-        self.run_cmd(self.conf_dict['project_path'], ['npm', 'run', 'build:admin'])
+        for script in build_scripts:
+            print(f'Running "npm run {script}"...')
+            self.run_cmd(self.conf_dict['project_path'], ['npm', 'run', script])
         print('Finished running build scripts.')
         print()
     
@@ -68,6 +96,35 @@ class ProjectQuickStarter:
     def has_package_json(self) -> bool:
         return 'package.json' in os.listdir(self.conf_dict['project_path'])
     
+    def import_database(self) -> None:
+        with SqlManager() as db:
+            connected = db.connect(
+                host=self.conf_dict['db_host'],
+                user=self.conf_dict['db_user'],
+                password=self.conf_dict['db_password'],
+            )
+
+            if not connected:
+                print('Error: CAN\'T IMPORT DATABASE -> connection failed')
+                return
+            
+            db_created = db.create_database(self.conf_dict['db_name'])
+
+            if not db_created:
+                print('Error: CAN\'T IMPORT DATABASE -> sql database creation failed')
+                return
+            
+            db.use_database(self.conf_dict['db_name'])
+            sql_imported = db.import_sql_file(os.path.abspath(self.conf_dict['db_file']))
+        
+            if not sql_imported:
+                print('Error: CAN\'T IMPORT DATABASE -> sql script import failed')
+                return
+        
+        print()
+        print(f'Imported {self.conf_dict["db_name"]} database.')
+        print()
+
     def create_vhosts_entry(self, host: str) -> None:
         with open('templates\\vhost_template.txt', 'r') as f:
             template_lines = f.readlines()
