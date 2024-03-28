@@ -6,6 +6,7 @@ An open-source Python console program for quick-starting projects made using the
 * Clone your project from a GitHub repository
 * Create all neccessary local Neon config files
 * Create a local virtual host for *Wampserver*
+* Setup a local MySql database from an sql script
 * Setup an FTP connection inside *FileZilla*
 * Run *composer install* command
 * Run *npm install* command
