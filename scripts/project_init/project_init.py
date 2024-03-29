@@ -3,6 +3,7 @@ import subprocess as sp
 import base64
 import json
 
+from project_init.config_manager import ConfigKey
 from project_init.sql_manager import SqlManager
 from project_init.local_configer import LocalConfiger
 
@@ -11,54 +12,53 @@ class ProjectQuickStarter:
         self.conf_dict = conf_dict
         self.settings = settings
 
-        if conf_dict['clone_repo']:
-            conf_dict['project_path'] = conf_dict['projects_f_path'] + '\\' + conf_dict['repo_link'].split('/')[-1]
-        conf_dict['project_path'].replace('/', '\\')
+        if conf_dict[ConfigKey.CLONE_REPO]:
+            conf_dict[ConfigKey.PROJECT_PATH] = conf_dict[ConfigKey.PROJECTS_F_PATH] + '\\' + conf_dict[ConfigKey.REPO_LINK].split('/')[-1]
+        conf_dict[ConfigKey.PROJECT_PATH].replace('/', '\\')
     
     def init_project(self) -> None:
-        conf = self.conf_dict
-        if conf['clone_repo']:
+        if self.conf_dict[ConfigKey.CLONE_REPO]:
             print('Cloning GitHub repo...')
             try:
-                self.run_cmd(self.conf_dict['projects_f_path'], ['git', 'clone', self.conf_dict['repo_link']])
+                self.run_cmd(self.conf_dict[ConfigKey.PROJECTS_F_PATH], ['git', 'clone', self.conf_dict[ConfigKey.REPO_LINK]])
             except:
                 print('Error: There was a problem with cloning the GitHub repo.')
                 exit()
             print('Finished cloning GitHub repo.')
             print()
-        if conf['git_safedir']:
-            abs_project_path = os.path.abspath(self.conf_dict['project_path'])
+        if self.conf_dict[ConfigKey.GIT_SAFEDIR]:
+            abs_project_path = os.path.abspath(self.conf_dict[ConfigKey.PROJECT_PATH])
             print(' '.join(['git', 'config', '--global', '--add', 'safe.directory', abs_project_path]))
             self.run_cmd('.', ['git', 'config', '--global', '--add', 'safe.directory', abs_project_path])
             print('Added project as a Git safe directory.')
             print()
-        if conf['local_configs']:
-            local_configer = LocalConfiger(conf['project_path'], conf['db_name'])
+        if self.conf_dict[ConfigKey.LOCAL_CONFIGS]:
+            local_configer = LocalConfiger(self.conf_dict[ConfigKey.PROJECT_PATH], self.conf_dict[ConfigKey.DB_NAME])
             local_configer.create_configs()
             print()
-        if conf['db_import']:
+        if self.conf_dict[ConfigKey.DB_IMPORT]:
             self.import_database()
-        if conf['create_vhost']:
-            host = self.conf_dict['host'].split('/')[-1]
+        if self.conf_dict[ConfigKey.CREATE_VHOST]:
+            host = self.conf_dict[ConfigKey.HOST].split('/')[-1]
             self.create_vhosts_entry(host)
             self.create_hosts_entry(host)
-        if conf['ftp_connection']:
+        if self.conf_dict[ConfigKey.FTP_CONNECTION]:
             self.create_ftp_connection()
-        if conf['composer']:
+        if self.conf_dict[ConfigKey.COMPOSER]:
             self.install_dependencies('composer')
-        if conf['npm']:
+        if self.conf_dict[ConfigKey.NPM]:
             self.install_dependencies('npm')
-        if conf['build']:
+        if self.conf_dict[ConfigKey.BUILD]:
             self.run_build_scripts()
         
-        print('Project ' + self.conf_dict['project_path'].split('\\')[-1] + ' was initialized.')
+        print('Project ' + self.conf_dict[ConfigKey.PROJECT_PATH].split('\\')[-1] + ' was initialized.')
     
     def install_dependencies(self, type: str) -> None:
         if type == 'npm' and not self.has_package_json():
             print(f'CAN\'T RUN NPM INSTALL -> no package.json found')
             return
         print(f'Running {type} install...')
-        self.run_cmd(self.conf_dict['project_path'], [type, 'i'])
+        self.run_cmd(self.conf_dict[ConfigKey.PROJECT_PATH], [type, 'i'])
         print(f'Finished running {type} install.')
         print()
     
@@ -67,7 +67,7 @@ class ProjectQuickStarter:
             print(f'CAN\'T RUN BUILD SCRIPTS -> no package.json found')
             return
         
-        with open(os.path.join(self.conf_dict['project_path'], 'package.json'), 'r') as pf:
+        with open(os.path.join(self.conf_dict[ConfigKey.PROJECT_PATH], 'package.json'), 'r') as pf:
             package_json: dict = json.load(pf)
 
         if not 'scripts' in package_json:
@@ -83,7 +83,7 @@ class ProjectQuickStarter:
         print('Running build scripts...')
         for script in build_scripts:
             print(f'Running "npm run {script}"...')
-            self.run_cmd(self.conf_dict['project_path'], ['npm', 'run', script])
+            self.run_cmd(self.conf_dict[ConfigKey.PROJECT_PATH], ['npm', 'run', script])
         print('Finished running build scripts.')
         print()
     
@@ -94,28 +94,28 @@ class ProjectQuickStarter:
         os.chdir(cwd)
     
     def has_package_json(self) -> bool:
-        return 'package.json' in os.listdir(self.conf_dict['project_path'])
+        return 'package.json' in os.listdir(self.conf_dict[ConfigKey.PROJECT_PATH])
     
     def import_database(self) -> None:
         with SqlManager() as db:
             connected = db.connect(
-                host=self.conf_dict['db_host'],
-                user=self.conf_dict['db_user'],
-                password=self.conf_dict['db_password'],
+                host=self.conf_dict[ConfigKey.DB_HOST],
+                user=self.conf_dict[ConfigKey.DB_USER],
+                password=self.conf_dict[ConfigKey.DB_PASSWORD],
             )
 
             if not connected:
                 print('Error: CAN\'T IMPORT DATABASE -> connection failed')
                 return
             
-            db_created = db.create_database(self.conf_dict['db_name'])
+            db_created = db.create_database(self.conf_dict[ConfigKey.DB_NAME])
 
             if not db_created:
                 print('Error: CAN\'T IMPORT DATABASE -> sql database creation failed')
                 return
             
-            db.use_database(self.conf_dict['db_name'])
-            sql_imported = db.import_sql_file(os.path.abspath(self.conf_dict['db_file']))
+            db.use_database(self.conf_dict[ConfigKey.DB_NAME])
+            sql_imported = db.import_sql_file(os.path.abspath(self.conf_dict[ConfigKey.DB_FILE]))
         
             if not sql_imported:
                 print('Error: CAN\'T IMPORT DATABASE -> sql script import failed')
@@ -137,7 +137,7 @@ class ProjectQuickStarter:
             if '[host_name]' in line:
                 template_lines[template_lines.index(line)] = line.replace('[host_name]', host)
             if '[project_path]' in line:
-                path = os.path.join(os.path.abspath(self.conf_dict['project_path']).replace('\\', '/'), 'www')
+                path = os.path.join(os.path.abspath(self.conf_dict[ConfigKey.PROJECT_PATH]).replace('\\', '/'), 'www')
                 template_lines[template_lines.index(line)] = line.replace('[project_path]', path)
         f.write('\n')
         f.writelines(template_lines)
@@ -163,11 +163,11 @@ class ProjectQuickStarter:
         with open('templates\\ftp_template.xml', 'r') as f:
             template_lines = f.readlines()
         variables = {
-            '[host_url]' : self.conf_dict['ftp_host'], 
-            '[username]' : self.conf_dict['ftp_username'], 
-            '[password]' : self.conf_dict['ftp_password'], 
-            '[connection_name]' : self.conf_dict['ftp_name'], 
-            '[local_dir_path]' : os.path.abspath(self.conf_dict['project_path' if self.conf_dict['path_local_dir'] else 'ftp_local_dir'])
+            '[host_url]'        : self.conf_dict[ConfigKey.FTP_HOST], 
+            '[username]'        : self.conf_dict[ConfigKey.FTP_USERNAME], 
+            '[password]'        : self.conf_dict[ConfigKey.FTP_PASSWORD], 
+            '[connection_name]' : self.conf_dict[ConfigKey.FTP_NAME], 
+            '[local_dir_path]'  : os.path.abspath(self.conf_dict[ConfigKey.PROJECT_PATH if self.conf_dict[ConfigKey.PATH_LOCAL_DIR] else 'ftp_local_dir'])
         }
         for i in range(len(template_lines)):
             line = template_lines[i]
