@@ -12,6 +12,10 @@ An open-source Python console program for quick-starting projects made using the
 * Run *npm install* command
 * Run build commands
 
+## How to start
+* Open start.bat to start the script without admin permissions
+* Open start_admin.bat to start the script with admin permissions (Needed to add windows hosts entry)
+
 ## Dependencies
 
 ### Required
