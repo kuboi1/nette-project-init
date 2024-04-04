@@ -14,7 +14,7 @@ An open-source Python console program for quick-starting projects made using the
 
 ## How to start
 * Open start.bat to start the script without admin permissions
-* Open start_admin.bat to start the script with admin permissions (Needed to add windows hosts entry)
+* Open start_admin.bat to start the script with admin permissions (Needed to add windows hosts entry that is neccessary for wamp vhost to work)
 
 ## Dependencies
 
