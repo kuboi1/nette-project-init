@@ -122,7 +122,7 @@ class ProjectQuickStarter:
                 return
         
         print()
-        print(f'Imported {self.conf_dict["db_name"]} database.')
+        print(f'Imported {self.conf_dict[ConfigKey.DB_NAME]} database.')
         print()
 
     def create_vhosts_entry(self, host: str) -> None:
