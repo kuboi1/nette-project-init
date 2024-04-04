@@ -6,7 +6,7 @@ class ConfigKey(Enum):
     CLONE_REPO = 'clone_repo'
     REPO_LINK = 'repo_link'
     GIT_SAFEDIR = 'git_safedir'
-    PROJECTS_F_PATH = 'projects_f_path'
+    PROJECTS_DIR_PATH = 'projects_dir_path'
     PROJECT_PATH = 'project_path'
     LOCAL_CONFIGS = 'local_configs'
     DB_IMPORT = 'db_import'
@@ -46,7 +46,7 @@ class ConfigManager:
             ConfigKey.CLONE_REPO        : True,
             ConfigKey.REPO_LINK         : 'https://github.com/visualio/accolade-web-2020',
             ConfigKey.GIT_SAFEDIR       : True,
-            ConfigKey.PROJECTS_F_PATH   : '..\\..\\projects',
+            ConfigKey.PROJECTS_DIR_PATH   : '..\\..\\projects',
             ConfigKey.PROJECT_PATH      : '..\\..\\projects\\accolade-web-2020',
             ConfigKey.LOCAL_CONFIGS     : True,
             ConfigKey.DB_IMPORT         : True,

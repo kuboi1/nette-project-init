@@ -3,13 +3,13 @@ from project_init.config_manager import ConfigKey
 
 class UI:
     def __init__(self, conf_dict: dict) -> None:
-        self.conf_dict = conf_dict
+        self._conf_dict = conf_dict
 
-        self.conf_prompts = {
+        self._conf_prompts = {
             ConfigKey.CLONE_REPO        : 'Clone project from GitHub repository?',
             ConfigKey.REPO_LINK         : 'GitHub repository link',
             ConfigKey.GIT_SAFEDIR       : 'Add project as Git safe directory?',
-            ConfigKey.PROJECTS_F_PATH   : 'Path to your projects directory',
+            ConfigKey.PROJECTS_DIR_PATH   : 'Path to your projects directory',
             ConfigKey.PROJECT_PATH      : 'Path to the main project directory',
             ConfigKey.LOCAL_CONFIGS     : 'Create local config.neon files?',
             ConfigKey.DB_IMPORT         : 'Create local database and import sql script?',
@@ -38,34 +38,51 @@ class UI:
         print('- input y/n for booleans and strings for paths etc.')
         print('- you can press enter with no input to confirm current settings (in square brackets)')
         print()
+    
+    def print_outro(self, errors: dict) -> None:
+        print()
+        print(f'Project ' + self._conf_dict[ConfigKey.PROJECT_PATH].split('\\')[-1] + ' was initialized.')
+
+        self._print_errors(errors)
 
     def get_configs(self) -> dict:
-        for config in self.conf_dict:
-            if not self.should_ask_for_config(config):
+        for config in self._conf_dict:
+            if not self._should_ask_for_config(config):
                 continue
-            current_value = self.conf_dict[config]
+            current_value = self._conf_dict[config]
             is_bool = type(current_value) == bool
             if is_bool:
                 current_value = 'YES' if current_value else 'NO'
-            user_input = input(f'{self.conf_prompts[config]} [{current_value}]: ')
+            user_input = input(f'{self._conf_prompts[config]} [{current_value}]: ')
             while user_input not in ['y', 'n', ''] and is_bool:
                 print('(y/n)')
-                user_input = input(f'{self.conf_prompts[config]} [{current_value}]: ')
+                user_input = input(f'{self._conf_prompts[config]} [{current_value}]: ')
             if user_input == '':
                 continue
             if config == ConfigKey.REPO_LINK:
-                while not self.is_github_link(user_input):
-                    print('Invalid visu github repository link')
-                    user_input = input(f'{self.conf_prompts[config]} [{current_value}]: ')
-            self.conf_dict[config] = user_input if not is_bool else (True if user_input == 'y' else False)
-        return self.conf_dict
+                while not self._is_github_link(user_input):
+                    print('Invalid github repository link')
+                    user_input = input(f'{self._conf_prompts[config]} [{current_value}]: ')
+            self._conf_dict[config] = user_input if not is_bool else (True if user_input == 'y' else False)
+        return self._conf_dict
     
-    def should_ask_for_config(self, config: ConfigKey) -> bool:
-        conf_dict = self.conf_dict
+    def _print_errors(self, errors: dict) -> None:
+        if len(errors.keys()) == 0:
+            return
+        
+        print()
+        print('WITH ERRORS:')
+        for key in errors:
+            key: ConfigKey
+            for error in errors[key]:
+                print(f'"{key.value}": {error}')
+
+    def _should_ask_for_config(self, config: ConfigKey) -> bool:
+        conf_dict = self._conf_dict
         match config:
             case ConfigKey.REPO_LINK        : return conf_dict[ConfigKey.CLONE_REPO]
             case ConfigKey.GIT_SAFEDIR      : return conf_dict[ConfigKey.CLONE_REPO]
-            case ConfigKey.PROJECTS_F_PATH  : return conf_dict[ConfigKey.CLONE_REPO]
+            case ConfigKey.PROJECTS_DIR_PATH  : return conf_dict[ConfigKey.CLONE_REPO]
             case ConfigKey.PROJECT_PATH     : return not conf_dict[ConfigKey.CLONE_REPO]
             case ConfigKey.DB_HOST          : return conf_dict[ConfigKey.DB_IMPORT]
             case ConfigKey.DB_USER          : return conf_dict[ConfigKey.DB_IMPORT]
@@ -82,5 +99,5 @@ class UI:
         # default
         return True
     
-    def is_github_link(self, user_input: str) -> bool:
+    def _is_github_link(self, user_input: str) -> bool:
         return bool(re.match(r'https:\/\/github.com\/[^\/]+\/[^\/]+\/?', user_input))

@@ -33,5 +33,7 @@ if __name__ == '__main__':
 
     os.chdir(ORIGINAL_CWD)
 
+    ui.print_outro(quick_starter.get_errors())
+
     print('\nDon\'t forget to restart all services on Wamp!\n')
     input('Press enter to exit...')

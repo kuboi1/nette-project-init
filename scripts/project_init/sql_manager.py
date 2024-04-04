@@ -3,10 +3,10 @@ import os
 from mysql.connector import MySQLConnection, Error as MySqlError
 
 class SqlManager:
-    connection: MySQLConnection
+    _connection: MySQLConnection
 
     def __init__(self) -> None:
-        self.connection = None
+        self._connection = None
     
     def __enter__(self):
         return self
@@ -18,7 +18,7 @@ class SqlManager:
     def connect(self, host: str, user: str, password: str, db: str = None) -> bool:
         try:
             # Establish a connection
-            self.connection = mysql.connector.connect(
+            self._connection = mysql.connector.connect(
                 host=host,
                 user=user,
                 password=password,
@@ -26,7 +26,7 @@ class SqlManager:
             )
             
             if self.is_connected():
-                print(f'Successfully connected to MySQL Server version {self.connection.get_server_info()}')
+                print(f'Successfully connected to MySQL Server version {self._connection.get_server_info()}')
                 return True
         except MySqlError as e:
             print('There was an error while connecting to MySQL: ', e)
@@ -34,8 +34,8 @@ class SqlManager:
     
     def close(self) -> None:
         if (self.is_connected()):
-            self.connection.cursor().close()
-            self.connection.close()
+            self._connection.cursor().close()
+            self._connection.close()
             print("MySQL connection was successfully closed")
 
     def execute_query(self, query: str, params: list = []) -> bool:
@@ -46,7 +46,7 @@ class SqlManager:
         try:
             query = self._format_query(query, params)
 
-            with self.connection.cursor() as cursor:
+            with self._connection.cursor() as cursor:
                 cursor.execute(query)
             print(f'\tSql query "{query}" executed successfully')
             return True
@@ -61,7 +61,7 @@ class SqlManager:
             return False
 
         try:
-            with self.connection.cursor() as cursor:
+            with self._connection.cursor() as cursor:
                 cursor.execute(script, multi=True)
             name = '' if name == '' else f'"{name}" '
             print(f'\tSql script {name}executed successfully')
@@ -87,7 +87,7 @@ class SqlManager:
             return self.execute_script(sql_f.read(), path.split('\\')[-1])
 
     def is_connected(self) -> bool:
-        return self.connection is not None and self.connection.is_connected()
+        return self._connection is not None and self._connection.is_connected()
     
     def is_sql_comment(self, line: str) -> bool:
         if line.startswith('--'):
